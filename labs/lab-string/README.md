@@ -277,7 +277,7 @@ Los tests de `IsEmpty` ya están activos en `StringTest.c`. Corré `make test` y
 
 **P1** — `IsEmpty` podría haberse escrito también como `return s[0] == '\0'`. ¿Son equivalentes? ¿Por qué?
 
-> R:
+> R: Si, son equivalentes. `s[0]` y `*s` hacen lo mismo: leen el primer caracter de la cadena. En los dos casos se compara ese caracter con `'\0'`.
 
 ---
 
@@ -328,14 +328,14 @@ make test
 
 **P2** — ¿Qué hace `s + 1`? ¿Por qué avanza al siguiente carácter y no al siguiente byte?
 
-> R:
+> R: `s + 1` mueve el puntero al siguiente caracter, o sea que apunta al resto de la cadena. Cuando se le suma 1 a un puntero, avanza un elemento de su tipo, no un byte. Como un `char` ocupa 1 byte, en este caso avanzar un caracter y avanzar un byte es lo mismo.
 
 **P3** — Si llamaras a `GetLength(NULL)`, ¿qué pasaría? ¿Por qué las precondiciones del contrato dicen `s != NULL`?
 
-> R:
+> R: El programa intentaria leer `*s` con `s` en `NULL`, y eso normalmente lo hace terminar con un error (segmentation fault). La precondicion avisa que el que llama a la funcion tiene que pasarle una cadena valida. `NULL` no es una cadena, ni siquiera la cadena vacia.
 
 ```
-GETLENGTH_PASA=
+GETLENGTH_PASA=SI
 ```
 _(escribí SI cuando todos los tests de GetLength pasen)_
 
@@ -367,7 +367,9 @@ El `while` termina cuando alguna de las dos cadenas llega a `'\0'`. Después dev
 
 **P4** — ¿Qué dos casos están mal cubiertos por `return 1`? Describí un ejemplo para cada uno.
 
-> R:
+> R: El `while` termina cuando se acaba una de las dos cadenas, pero no revisa si la otra tambien se acabo. Los dos casos que fallan son:
+> 1. La primera cadena es mas corta: `AreEqual("ab", "abc")` devuelve 1 y deberia devolver 0.
+> 2. La segunda cadena es mas corta: `AreEqual("abc", "ab")` devuelve 1 y deberia devolver 0.
 
 #### Corrección
 
@@ -384,7 +386,7 @@ make test
 ```
 
 ```
-AREEQUAL_PASA=
+AREEQUAL_PASA=SI
 ```
 _(escribí SI cuando todos los tests de AreEqual pasen)_
 
@@ -414,7 +416,7 @@ int AreDecimalDigits(const char *s) {
 
 **P5** — ¿Por qué la cadena vacía no debería considerarse un conjunto de dígitos decimales? Pensalo desde la especificación matemática.
 
-> R:
+> R: Porque la especificacion dice que `AreDecimalDigits(ε) = 0`: hace falta al menos un caracter. Ademas, una cadena vacia no representa ningun numero, asi que no tiene sentido decir que esta formada por digitos.
 
 #### Corrección
 
@@ -425,7 +427,7 @@ make test
 ```
 
 ```
-AREDECIMALDIGITS_PASA=
+AREDECIMALDIGITS_PASA=SI
 ```
 _(escribí SI cuando todos los tests de AreDecimalDigits pasen)_
 
@@ -452,7 +454,7 @@ make test
 ```
 
 ```
-CONTAINS_PASA=
+CONTAINS_PASA=SI
 ```
 _(escribí SI cuando todos los tests de Contains pasen)_
 
@@ -467,7 +469,7 @@ Antes de implementar, discutí con tu equipo:
 
 **P6** — Conclusión de la discusión:
 
-> R:
+> R: Es mejor tenerla en un modulo separado. `String` tiene funciones que trabajan con cadenas (longitud, comparar, buscar un caracter). `ToInteger` en cambio convierte una cadena a otro tipo (un `int`), que es una tarea distinta. Separarlas deja cada modulo mas ordenado, y si mas adelante hay que agregar otras conversiones, ya tienen su lugar en `Conversion`.
 
 ---
 
@@ -494,7 +496,7 @@ int ToInteger(const char *s) {
 
 **P7** — El loop acumula correctamente el valor en `resultado`. ¿Qué está mal en el `return`?
 
-> R:
+> R: Devuelve solo `signo` (1 o -1) y se olvida de `resultado`. Por ejemplo, `ToInteger("42")` devuelve 1. Lo correcto es `return signo * resultado;`.
 
 #### Corrección
 
@@ -506,10 +508,10 @@ make test
 
 **P8** — La expresión `*s - '0'` convierte un carácter dígito al entero correspondiente. ¿Por qué funciona? ¿Qué devuelve `'3' - '0'`?
 
-> R:
+> R: Cada caracter se guarda como un numero (su codigo ASCII), y los digitos `'0'` a `'9'` tienen codigos seguidos (del 48 al 57). Si a un digito le restas el codigo de `'0'`, te queda su valor numerico. `'3' - '0'` es 51 - 48, o sea **3**.
 
 ```
-TOINTEGER_PASA=
+TOINTEGER_PASA=SI
 ```
 _(escribí SI cuando todos los tests de ToInteger pasen)_
 
@@ -562,7 +564,7 @@ foo
 
 **P9** — ¿Por qué `(void)argc` suprime un warning? ¿Cuándo sería necesario usar `argc`?
 
-> R:
+> R: El compilador avisa con un warning cuando un parametro no se usa. Con `(void)argc` el parametro aparece "usado", y ademas queda claro que no usarlo es a proposito. `argc` hace falta cuando se necesita saber cuantos argumentos hay. Por ejemplo, para chequear que se paso al menos uno, como hace `mayorlongitud` con `argc < 2`.
 
 ---
 
@@ -589,7 +591,7 @@ Salida esperada:
 ```
 
 ```
-LONGITUDES_PASA=
+LONGITUDES_PASA=SI
 ```
 _(SI o NO)_
 
@@ -616,7 +618,7 @@ make mayorlongitud
 ```
 
 ```
-MAYORLONGITUD_PASA=
+MAYORLONGITUD_PASA=SI
 ```
 _(SI o NO)_
 
@@ -635,7 +637,7 @@ make todosiguales
 ```
 
 ```
-TODOSIGUALES_PASA=
+TODOSIGUALES_PASA=SI
 ```
 _(SI o NO)_
 
@@ -652,7 +654,7 @@ make suma
 ```
 
 ```
-SUMA_PASA=
+SUMA_PASA=SI
 ```
 _(SI o NO)_
 
@@ -662,15 +664,15 @@ _(SI o NO)_
 
 **P10** — `GetLength` es recursiva pero en C una llamada recursiva consume un stack frame. Si llamaras `GetLength` con un string de 1.000.000 de caracteres, ¿qué pasaría? ¿Cómo lo resolverías?
 
-> R:
+> R: Se harian un millon de llamadas, una dentro de otra, y cada una ocupa lugar en el stack. Como el stack tiene un limite, lo mas probable es que se llene (stack overflow) y el programa termine con un error. Se resuelve escribiendo `GetLength` con un loop en vez de recursion: el loop usa siempre la misma memoria, sin importar el largo de la cadena.
 
 **P11** — En la Parte III, todos los programas usan `char **arg` para iterar en vez de un índice entero. ¿Qué ventaja tiene este estilo? ¿Cuándo sería preferible usar el índice?
 
-> R:
+> R: Con el puntero no hace falta `argc` ni un contador: se avanza hasta encontrar el `NULL` del final, igual que con las cadenas se avanza hasta `'\0'`. Ademas, `*arg` ya es el argumento actual. El indice conviene cuando importa la posicion, por ejemplo para mostrar el numero de cada argumento o para recorrerlos al reves.
 
 **P12** — En C, `"hola"` es un literal de tipo `const char *`. Si intentaras modificar un carácter con `s[0] = 'H'`, el comportamiento es indefinido. ¿Por qué? ¿En qué parte de la memoria viven los literales?
 
-> R:
+> R: Los literales viven en la memoria estatica, en una parte que es de solo lectura. Si se intenta escribir ahi, lo normal es que el programa termine con un error, aunque no esta garantizado que pase siempre lo mismo. Por eso se dice que el comportamiento es indefinido. Si se necesita modificar la cadena, hay que usar `char s[] = "hola";`, que hace una copia en el stack que si se puede cambiar.
 
 ---
 
